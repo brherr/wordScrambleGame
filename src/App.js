@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from "react";
 import Scramble from "./components/Scramble";
-import Score from "./components/Score";
 import GuessBlock from "./components/GuessBlock";
 import "./App.css";
+
+// not using excess comments because alot of the function names are self-explanatory!
 
 function App() {
   const [sentence, setSentence] = useState("");
   const [sentenceNumber, setSentenceNumber] = useState(1);
   const [sentenceCount, setSentenceCount] = useState(0);
+  const [score, setScore] = useState(0);
+  const [scoreCount, setScoreCount] = useState(0);
+  const [isGameOver, setIsGameOver] = useState(false);
 
-  const [loading, setLoading] = useState(true);
   const url = `https://api.hatchways.io/assessment/sentences/${sentenceNumber}`;
 
+  // when to fetch new sentence
   useEffect(() => {
     fetchSentence(sentenceNumber);
-  }, [sentence, sentenceNumber]);
+  }, [sentence, sentenceNumber, isGameOver]);
 
   const fetchSentence = (sentenceNumber) => {
     fetch(url)
@@ -30,23 +34,93 @@ function App() {
       );
   };
 
-  return (
-    <div className="full-background">
-      <div className="main-container">
-        <div className="scramble">
-          <Scramble sentence={sentence} />
-        </div>
-        <div className="instructions">
-          <h3>Guess the sentence! Start typing.</h3>
-          <h3>The yellow blocks represent spaces.</h3>
-        </div>
+  function checkScore() {
+    if (score === sentenceCount + 1) {
+      setScoreCount((prev) => prev + 1, console.log(scoreCount));
+    } else {
+      console.log(scoreCount);
+    }
+  }
 
-        <div className="score">
-          <Score />
-        </div>
-        <div>
-          <GuessBlock sentence={sentence} sentenceCount={sentenceCount} />
-        </div>
+  function addToScore() {
+    setScore((prev) => prev + 1, console.log(score));
+  }
+
+  function getNextSentence() {
+    setScore(0);
+    if (sentenceNumber < 10) {
+      setSentenceNumber((prev) => prev + 1);
+      checkScore();
+      fetchSentence(sentenceNumber);
+      // console.log(isGameOver)
+      // console.log(sentenceNumber)
+    } else {
+      setIsGameOver(true);
+      // console.log(isGameOver)
+      // console.log(sentenceNumber)
+    }
+  }
+
+  function resetGame(e) {
+    setIsGameOver(false);
+    setSentenceNumber(1, console.log(sentenceNumber));
+    fetchSentence(sentenceNumber);
+    setScoreCount(0);
+  }
+
+  return (
+    <div className="App">
+      <div className="container">
+        {isGameOver && score === 10 ? (
+          <h1 className="header">"You Win!!!"</h1>
+        ) : (
+          ""
+        )}
+        {isGameOver && score < 10 ? (
+          <h1 className="header">"Try Again"</h1>
+        ) : (
+          ""
+        )}
+        {isGameOver ? "" : <Scramble sentence={sentence} />}
+        {isGameOver ? (
+          " "
+        ) : (
+          <div>
+            <p>Guess the sentence! Start typing...</p>
+            <br />
+            <p>The yellow blocks are meant for spaces.</p>
+          </div>
+        )}
+        {isGameOver ? (
+          " "
+        ) : (
+          <GuessBlock
+            sentence={sentence}
+            sentenceIndex={`${sentenceNumber}`}
+            score={score}
+            addToScore={addToScore}
+            scoreCount={scoreCount}
+          />
+        )}
+        {isGameOver ? (
+          <button
+            id="resetButton"
+            style={
+              isGameOver ? { visibility: "visible" } : { visibility: "hidden" }
+            }
+            onClick={resetGame}
+          >
+            Reset
+          </button>
+        ) : (
+          <button
+            id="nextSentenceButton"
+            style={{ visibility: "hidden" }}
+            onClick={getNextSentence}
+          >
+            Next
+          </button>
+        )}
       </div>
     </div>
   );

@@ -42,8 +42,10 @@ const Scramble = (props) => {
     }
 
   return (
-   
+    <div id='scrambled-word'>
         <h1>{scrambled}</h1>
+    </div>
+
    
   )
 }

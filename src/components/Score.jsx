@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-const Score = () => {
-    const [score, setScore] = useState(0);
+function Score(props) {
 
-
-  return (
-    <h1>Score: {score}</h1>
-  )
+    return(
+        <div id="score">
+            <h2>Score: {props.score}</h2>
+        </div>
+    )
 }
 
 export default Score;
